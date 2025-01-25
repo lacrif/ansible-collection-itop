@@ -1,0 +1,14 @@
+namespace: community
+name: itop
+version: 1.0.0
+readme: README.md
+authors:
+  - lacrif
+description: ''
+license_file: LICENCE
+tags:
+  - itop
+repository: ''
+documentation: ''
+homepage: ''
+issues: ''

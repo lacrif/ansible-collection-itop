@@ -1,0 +1,4 @@
+plugin: 'community.itop.itop_inventory'
+url: 'http://localhost/webservices/rest.php?version=1.3'
+user: 'admin'
+password: 'admin'
