@@ -51,8 +51,38 @@ import json
 class InventoryModule(BaseInventoryPlugin):
     NAME = 'community.itop.itop_inventory'
 
-    def parse(self, inventory, loader, path, cache=True):
+    def getServer(self, inventory, url, user, password):
+        try:
+            payload = {
+                "operation": "core/get",
+                "class": "Server",
+                "key": "SELECT Server"
+            }
+            encoded_data = json.dumps(payload)
+            response = requests.post(   
+                url, 
+                verify=False, 
+                data={
+                    'auth_user': user, 
+                    'auth_pwd': password,
+                    'json_data': encoded_data
+                }
+            )
 
+            itop_data = response.json()
+
+            inventory.add_group('server')
+
+            for server in itop_data['objects']:
+                obj_Host = inventory.add_host(host=itop_data['objects'][server]['fields']['name'], group='server')
+                inventory.set_variable(obj_Host, 'ansible_host', itop_data['objects'][server]['fields']['managementip'])
+                for k in itop_data['objects'][server]['fields']:
+                    inventory.set_variable(obj_Host, k, itop_data['objects'][server]['fields'][k])
+
+        except Exception as e:
+            raise AnsibleParserError("Invalid data from string, could not parse: %s" % to_native(e))
+
+    def parse(self, inventory, loader, path, cache=True):
         super(InventoryModule, self).parse(
             inventory,
             loader,
@@ -61,27 +91,10 @@ class InventoryModule(BaseInventoryPlugin):
         )
 
         self._read_config_data(path)
-
-        try:
-            itop_url = self.get_option('url')
-            itop_user=self.get_option('user')
-            itop_password=self.get_option('password')
-
-            payload = {
-                "operation": "core/get",
-                "class": "Server",
-                "key": "SELECT Server"
-            }
-            encoded_data = json.dumps(payload)
-            response = requests.post(itop_url, verify=False, data={'auth_user': itop_user , 'auth_pwd': itop_password , 'json_data': encoded_data})
-
-            itop_data = response.json()
-
-            self.inventory.add_group('server')
-
-            for server in itop_data['objects']:
-                obj_Host = self.inventory.add_host(host=itop_data['objects'][server]['fields']['name'], group='server')
-                self.inventory.set_variable(obj_Host, 'ansible_host', itop_data['objects'][server]['fields']['managementip'])
-
-        except Exception as e:
-            raise AnsibleParserError("Invalid data from string, could not parse: %s" % to_native(e))
+        
+        self.getServer(
+            self.inventory,
+            self.get_option('url'),
+            self.get_option('user'),
+            self.get_option('password')
+        )
