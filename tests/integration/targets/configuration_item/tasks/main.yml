@@ -1,0 +1,68 @@
+---
+
+- environment:
+    ITOP_URL: 'http://localhost:9080/webservices/rest.php?version=1.3'
+    ITOP_USERNAME: 'admin'
+    ITOP_PASSWORD: 'admin'
+    ITOP_VERIFY: ''
+
+  block:
+    - name: 'Create configuration item'
+      community.itop.configuration_item:
+        class_name: 'VirtualMachine'
+        comment: 'Create VirtualMachine'
+        fields:
+          org_id: "SELECT Organization WHERE name = 'Demo'"
+          virtualhost_id: "SELECT Farm WHERE name = 'Cluster1'"
+          name: "VM10"
+          description: "VM 10 !!"
+      register: api_servers
+
+    - name: 'Show configuration item'
+      ansible.builtin.debug:
+        msg: '{{ api_servers }}'
+
+    - ansible.builtin.assert:
+        that:
+          - api_servers.changed
+          - api_servers.objects | length == 1
+
+    - name: 'Update configuration item'
+      community.itop.configuration_item:
+        class_name: 'VirtualMachine'
+        comment: 'Create VirtualMachine'
+        key:
+          org_id: "SELECT Organization WHERE name = 'Demo'"
+          virtualhost_id: "SELECT Farm WHERE name = 'Cluster1'"
+          name: "VM10"
+          description: "VM 10 !!"
+        fields:
+          description: "VM 100 !!"
+      register: api_servers
+
+    - name: 'Show configuration item'
+      ansible.builtin.debug:
+        msg: '{{ api_servers }}'
+
+    - ansible.builtin.assert:
+        that:
+          - api_servers.changed
+          - api_servers.objects | length == 1
+  
+    - name: 'Delete configuration item'
+      community.itop.configuration_item:
+        class_name: 'VirtualMachine'
+        comment: 'Delete VirtualMachine'
+        key:
+          name: "VM10"
+        state: 'absent'
+      register: api_servers
+
+    - name: 'Show configuration item'
+      ansible.builtin.debug:
+        msg: '{{ api_servers }}'
+
+    - ansible.builtin.assert:
+        that:
+          - api_servers.changed
+          - api_servers.objects | length == 1

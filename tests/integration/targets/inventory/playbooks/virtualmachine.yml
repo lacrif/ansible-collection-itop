@@ -1,0 +1,11 @@
+---
+- name: Test automatic grouping
+  hosts: localhost
+  gather_facts: false
+  tasks:
+
+    - name: Make sure we have all expected groups
+      ansible.builtin.assert:
+        that:
+          - groups.all | length == 2
+          - groups.status_production | sort | list == ["VM1", "VM2"]

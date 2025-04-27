@@ -4,6 +4,8 @@ __metaclass__ = type
 
 DOCUMENTATION = r'''
 name: itop_inventory
+extends_documentation_fragment:
+    - constructed
 version_added: 1.0.0
 author:
     - Lacrif
@@ -22,65 +24,70 @@ options:
               C(url) is an alias for C(server_url).
         required: true
         type: str
-        aliases: [ url ]
-    user:
+    username:
         description:
             - Itop user name.
         required: true
-        type: str
+        type: str 
     password:
         description:
             - Itop user password.
         required: true
         type: str
+    verify:
+        description:
+            - SSL Certificate.
+        type: str
+        default: ''
+    class_name:
+        description:
+            - Configuration item class.
+        type: str
+        default: 'Server'
+    key:
+        description:
+            - query OQL.
+        type: str
+        default: 'SELECT Server'
+    output_fields:
+        description:
+            - List of table columns to be included as hostvars.
+        type: str
+        default: '*'
+    limit:
+        description:
+            - Amount of results to return (default: 0 = no limit)
+        type: int
+        default: 0
+    page:
+        description:
+            - Page number to return (cannot be < 1)
+        type: int
+        default: 1
 '''
 
 EXAMPLES = r'''
 # Connect to itop
 plugin: community.itop.itop_inventory
 url: 'http://localhost/webservices/rest.php?version=1.3'
-user: 'admin'
+username: 'admin'
 password: 'admin'
 '''
 
-from ansible.errors import AnsibleError, AnsibleParserError
-from ansible.plugins.inventory import BaseInventoryPlugin
-import requests
-import json
+from ansible.plugins.inventory import BaseInventoryPlugin, Constructable
+from ..module_utils.api import ItopApi
 
-class InventoryModule(BaseInventoryPlugin):
+class InventoryModule(BaseInventoryPlugin, Constructable):
     NAME = 'community.itop.itop_inventory'
 
-    def getServer(self, inventory, url, user, password):
-        try:
-            payload = {
-                "operation": "core/get",
-                "class": "Server",
-                "key": "SELECT Server"
-            }
-            encoded_data = json.dumps(payload)
-            response = requests.post(   
-                url, 
-                verify=False, 
-                data={
-                    'auth_user': user, 
-                    'auth_pwd': password,
-                    'json_data': encoded_data
-                }
+    def verify_file(self, path):
+        if super(InventoryModule, self).verify_file(path):
+            if path.endswith(("itop.yaml", "itop.yml")):
+                return True
+            self.display.vvv(
+                'Skipping due to inventory source not ending in "itop.yaml" nor "itop.yml"'
             )
-
-            itop_data = response.json()
-
-            inventory.add_group('server')
-
-            for server in itop_data['objects']:
-                obj_Host = inventory.add_host(host=itop_data['objects'][server]['fields']['name'], group='server')
-                inventory.set_variable(obj_Host, 'ansible_host', itop_data['objects'][server]['fields']['managementip'])
-                for k in itop_data['objects'][server]['fields']:
-                    inventory.set_variable(obj_Host, k, itop_data['objects'][server]['fields'][k])
-
-        except Exception as e:
-            raise AnsibleParserError("Invalid data from string, could not parse: %s" % to_native(e))
+        return False
 
     def parse(self, inventory, loader, path, cache=True):
         super(InventoryModule, self).parse(
@@ -92,9 +99,62 @@ class InventoryModule(BaseInventoryPlugin):
 
         self._read_config_data(path)
         
-        self.getServer(
-            self.inventory,
-            self.get_option('url'),
-            self.get_option('user'),
-            self.get_option('password')
+        url = self.get_option('url')
+        username = self.get_option('username')
+        password = self.get_option('password')
+        verify = self.get_option('verify')       
+        class_name = self.get_option('class_name')
+        key = self.get_option('key')
+        output_fields = self.get_option('output_fields')
+        page = self.get_option('page')
+        limit = self.get_option('limit')
+        
+        itop_api = ItopApi(
+            url,
+            username,
+            password,
+            verify
         )
+
+        itop_data = itop_api.core_get(
+            class_name,
+            key,
+            output_fields,
+            page,
+            limit
+        )
+    
+        for server in itop_data['objects']:
+            inventory_hostname = itop_data['objects'][server]['fields']['name']
+
+            obj_Host = inventory.add_host(host=inventory_hostname, group='all')
+
+            for k in itop_data['objects'][server]['fields']:
+                inventory.set_variable(obj_Host, k, itop_data['objects'][server]['fields'][k])
+                
+            # Get variables for compose
+            variables = self.inventory.hosts[inventory_hostname].get_vars()
+
+            # Set composed variables
+            self._set_composite_vars(
+                self.get_option('compose'),
+                variables,
+                inventory_hostname,
+                self.get_option('strict'),
+            )
+
+            # Add host to composed groups
+            self._add_host_to_composed_groups(
+                self.get_option('groups'),
+                variables,
+                inventory_hostname,
+                self.get_option('strict'),
+            )
+
+            # Add host to keyed groups
+            self._add_host_to_keyed_groups(
+                self.get_option('keyed_groups'),
+                variables,
+                inventory_hostname,
+                self.get_option('strict'),
+            )

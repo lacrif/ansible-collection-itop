@@ -1,0 +1,23 @@
+plugin: 'community.itop.itop_inventory'
+
+url: 'http://localhost:9080/webservices/rest.php?version=1.3'
+username: 'admin'
+password: 'admin'
+verify: '/etc/ssl/certs/ca-certificates.crt'
+class_name: 'VirtualMachine'
+key: 'SELECT VirtualMachine'
+output_fields: 'name, osfamily_name, status'
+page: 1
+limit: 2
+
+keyed_groups:
+  - key: 'status'
+    prefix: 'status'
+
+groups:
+  windows_servers_prod: >-
+    status == "production" and
+    osfamily_name == "Windows server"
+
+compose:
+  ansible_host: managementip
