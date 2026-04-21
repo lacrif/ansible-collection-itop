@@ -1,5 +1,6 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 from __future__ import absolute_import, division, print_function
+from ansible.errors import AnsibleParserError
 __metaclass__ = type
 
 DOCUMENTATION = r'''
@@ -123,7 +124,12 @@ class InventoryModule(BaseInventoryPlugin, Constructable):
             page,
             limit
         )
-    
+
+        if itop_data['code'] != 0:
+            raise AnsibleParserError(
+                f"Query error { itop_data['code'] }: { itop_data['message'] }"
+            )
+
         for server in itop_data['objects']:
             inventory_hostname = itop_data['objects'][server]['fields']['name']
 
