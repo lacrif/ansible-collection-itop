@@ -22,18 +22,30 @@ options:
         description:
             - URL of Itop server, with protocol (http or https).
               C(url) is an alias for C(server_url).
+            - If the value is not specified in the inventory configuration,
+              the value of environment variable E(ITOP_WS_URL) will be used instead.
         required: true
         type: str
+        env:
+            - name: ITOP_WS_URL
     username:
         description:
             - Itop user name.
+            - If the value is not specified in the inventory configuration,
+              the value of environment variable E(ITOP_WS_AUTH_USER) will be used instead.
         required: true
         type: str 
+        env:
+            - name: ITOP_WS_AUTH_USER
     password:
         description:
             - Itop user password.
+            - If the value is not specified in the inventory configuration,
+              the value of environment variable E(ITOP_WS_AUTH_PWD) will be used instead.
         required: true
         type: str
+        env:
+            - name: ITOP_WS_AUTH_PWD
     verify:
         description:
             - SSL Certificate.
