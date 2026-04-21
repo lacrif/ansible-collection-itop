@@ -1,14 +1,15 @@
-namespace: community
-name: itop
-version: 1.0.0
-readme: README.md
+namespace: 'lacrif'
+name: 'itop'
+version: '0.1.0'
+readme: 'README.md'
 authors:
-  - lacrif
-description: ''
-license_file: LICENCE
+  - 'lacrif'
+description: 'Ansible collection for iTop, the open source IT service management software.'
+license_file: 'LICENCE'
 tags:
   - itop
-repository: ''
-documentation: ''
-homepage: ''
-issues: ''
+
+repository: 'https://github.com/lacrif/ansible-collection-itop'
+documentation: 'https://github.com/lacrif/ansible-collection-itop'
+homepage: 'https://github.com/lacrif/ansible-collection-itop'
+issues: 'https://github.com/lacrif/ansible-collection-itop/issues'
