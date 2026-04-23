@@ -1,4 +1,4 @@
-plugin: 'community.itop.itop_inventory'
+plugin: 'lacrif.itop.itop_inventory'
 
 url: 'http://localhost:9080/webservices/rest.php?version=1.3'
 username: 'admin'

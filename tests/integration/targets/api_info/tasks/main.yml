@@ -8,7 +8,7 @@
 
   block:
     - name: 'Retrieve API information'
-      community.itop.operations:
+      lacrif.itop.operations:
       register: api_operations
 
     - name: 'Show API'

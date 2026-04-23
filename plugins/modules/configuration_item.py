@@ -20,7 +20,7 @@ description:
     U(https://www.itophub.io/wiki/page?id=2_4_0:datamodel:itop-config-mgmt).
 
 seealso:
-  - module: community.itop.configuration_item
+  - module: lacrif.itop.configuration_item
 
 options:
     class_name:
@@ -58,7 +58,7 @@ options:
 
 EXAMPLES = r'''
 - name: 'Create first configuration items'
-  community.itop.configuration_item:
+  lacrif.itop.configuration_item:
     class_name: 'VirtualMachine'
     output_fields: ''
     comment: 'Create VirtualMachine'

@@ -8,7 +8,7 @@
 
   block:
     - name: 'Retrieve 2 first configuration items'
-      community.itop.configuration_item_info:
+      lacrif.itop.configuration_item_info:
         class_name: 'Server'
         key: 'SELECT Server'
         page: 1

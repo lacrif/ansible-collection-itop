@@ -18,7 +18,7 @@ options:
     plugin:
         description: Name of the plugin
         required: true
-        choices: ['community.itop.itop_inventory']
+        choices: ['lacrif.itop.itop_inventory']
     url:
         description:
             - URL of Itop server, with protocol (http or https).
@@ -85,7 +85,7 @@ options:
 
 EXAMPLES = r'''
 # Connect to itop
-plugin: community.itop.itop_inventory
+plugin: lacrif.itop.itop_inventory
 url: 'http://localhost/webservices/rest.php?version=1.3'
 username: 'admin'
 password: 'admin'
@@ -95,7 +95,7 @@ from ansible.plugins.inventory import BaseInventoryPlugin, Constructable
 from ..module_utils.api import ItopApi
 
 class InventoryModule(BaseInventoryPlugin, Constructable):
-    NAME = 'community.itop.itop_inventory'
+    NAME = 'lacrif.itop.itop_inventory'
 
     def verify_file(self, path):
         if super(InventoryModule, self).verify_file(path):

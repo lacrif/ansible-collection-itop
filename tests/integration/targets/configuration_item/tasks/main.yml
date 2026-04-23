@@ -8,7 +8,7 @@
 
   block:
     - name: 'Create configuration item'
-      community.itop.configuration_item:
+      lacrif.itop.configuration_item:
         class_name: 'VirtualMachine'
         comment: 'Create VirtualMachine'
         fields:
@@ -28,7 +28,7 @@
           - api_servers.objects | length == 1
 
     - name: 'Update configuration item'
-      community.itop.configuration_item:
+      lacrif.itop.configuration_item:
         class_name: 'VirtualMachine'
         comment: 'Create VirtualMachine'
         key:
@@ -50,7 +50,7 @@
           - api_servers.objects | length == 1
   
     - name: 'Delete configuration item'
-      community.itop.configuration_item:
+      lacrif.itop.configuration_item:
         class_name: 'VirtualMachine'
         comment: 'Delete VirtualMachine'
         key:

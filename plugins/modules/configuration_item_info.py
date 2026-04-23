@@ -20,7 +20,7 @@ description:
     U(https://www.itophub.io/wiki/page?id=2_4_0:datamodel:itop-config-mgmt).
 
 seealso:
-  - module: community.itop.configuration_item_info
+  - module: lacrif.itop.configuration_item_info
 
 options:
     class_name:
@@ -52,7 +52,7 @@ options:
 
 EXAMPLES = r'''
 - name: 'Retrieve 2 first configuration items'
-  community.itop.configuration_item_info:
+  lacrif.itop.configuration_item_info:
     class_name: 'Server'
     key: 'SELECT Server'
     output_fields: 'name, osfamily_name, status'
